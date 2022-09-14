@@ -197,6 +197,7 @@ class Predictor {
    *
    * \param [in,out]  dmat               The input feature matrix.
    * \param [in,out]  out_contribs       The output feature contribs.
+   * \param           reg_lambda         L2 regularization strength.
    * \param           model              Model to make predictions from.
    * \param           tree_end           The tree end index.
    * \param           tree_weights       (Optional) Weights to multiply each tree by.
@@ -207,6 +208,7 @@ class Predictor {
 
   virtual void
   PredictContribution(DMatrix *dmat, HostDeviceVector<bst_float> *out_contribs,
+                      bst_float reg_lambda,
                       const gbm::GBTreeModel &model, unsigned tree_end = 0,
                       std::vector<bst_float> const *tree_weights = nullptr,
                       bool approximate = false, int condition = 0,

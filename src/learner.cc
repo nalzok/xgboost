@@ -1237,8 +1237,8 @@ class LearnerImpl : public LearnerIO {
   }
 
   void Predict(std::shared_ptr<DMatrix> data, bool output_margin,
-               HostDeviceVector<bst_float> *out_preds, unsigned layer_begin,
-               unsigned layer_end, bool training,
+               bst_float reg_lambda, HostDeviceVector<bst_float> *out_preds,
+               unsigned layer_begin, unsigned layer_end, bool training,
                bool pred_leaf, bool pred_contribs, bool approx_contribs,
                bool pred_interactions) override {
     int multiple_predictions = static_cast<int>(pred_leaf) +
@@ -1247,10 +1247,11 @@ class LearnerImpl : public LearnerIO {
     this->Configure();
     CHECK_LE(multiple_predictions, 1) << "Perform one kind of prediction at a time.";
     if (pred_contribs) {
-      gbm_->PredictContribution(data.get(), out_preds, layer_begin, layer_end, approx_contribs);
-    } else if (pred_interactions) {
-      gbm_->PredictInteractionContributions(data.get(), out_preds, layer_begin, layer_end,
+      gbm_->PredictContribution(data.get(), out_preds, reg_lambda, layer_begin, layer_end,
                                             approx_contribs);
+    } else if (pred_interactions) {
+      gbm_->PredictInteractionContributions(data.get(), out_preds, layer_begin,
+                                            layer_end, approx_contribs);
     } else if (pred_leaf) {
       gbm_->PredictLeaf(data.get(), out_preds, layer_begin, layer_end);
     } else {

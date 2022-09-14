@@ -193,7 +193,7 @@ TEST(GPUPredictor, ShapStump) {
   gpu_predictor->Configure({});
   HostDeviceVector<float> predictions;
   auto dmat = RandomDataGenerator(3, 1, 0).GenerateDMatrix();
-  gpu_predictor->PredictContribution(dmat.get(), &predictions, model);
+  gpu_predictor->PredictContribution(dmat.get(), &predictions, 0.0f, model);
   auto& phis = predictions.HostVector();
   EXPECT_EQ(phis[0], 0.0);
   EXPECT_EQ(phis[1], param.base_score);
@@ -230,8 +230,8 @@ TEST(GPUPredictor, Shap) {
   HostDeviceVector<float> predictions;
   HostDeviceVector<float> cpu_predictions;
   auto dmat = RandomDataGenerator(3, 1, 0).GenerateDMatrix();
-  gpu_predictor->PredictContribution(dmat.get(), &predictions, model);
-  cpu_predictor->PredictContribution(dmat.get(), &cpu_predictions, model);
+  gpu_predictor->PredictContribution(dmat.get(), &predictions, 0.0f, model);
+  cpu_predictor->PredictContribution(dmat.get(), &cpu_predictions, 0.0f, model);
   auto& phis = predictions.HostVector();
   auto& cpu_phis = cpu_predictions.HostVector();
   for (auto i = 0ull; i < phis.size(); i++) {

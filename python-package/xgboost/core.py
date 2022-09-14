@@ -1899,6 +1899,7 @@ class Booster:
         self,
         data: DMatrix,
         output_margin: bool = False,
+        reg_lambda: float = 0.0,
         ntree_limit: int = 0,
         pred_leaf: bool = False,
         pred_contribs: bool = False,
@@ -1925,6 +1926,9 @@ class Booster:
 
         output_margin :
             Whether to output the raw untransformed margin value.
+
+        reg_lambda :
+            L2 regularization parameter used to train the Booster.
 
         ntree_limit :
             Deprecated, use `iteration_range` instead.
@@ -2024,6 +2028,7 @@ class Booster:
             _LIB.XGBoosterPredictFromDMatrix(
                 self.handle,
                 data.handle,
+                ctypes.c_float(reg_lambda),
                 from_pystr_to_cstr(json.dumps(args)),
                 ctypes.byref(shape),
                 ctypes.byref(dims),

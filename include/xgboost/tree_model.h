@@ -576,9 +576,11 @@ class RegTree : public Model {
   /*!
    * \brief calculate the approximate feature contributions for the given root
    * \param feat dense feature vector, if the feature is missing the field is set to NaN
+   * \param reg_lambda L2 regularization strength
    * \param out_contribs output vector to hold the contributions
    */
   void CalculateContributionsApprox(const RegTree::FVec& feat,
+                                    bst_float reg_lambda,
                                     std::vector<float>* mean_values,
                                     bst_float* out_contribs) const;
   /*!

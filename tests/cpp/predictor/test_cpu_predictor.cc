@@ -61,7 +61,7 @@ TEST(CpuPredictor, Basic) {
   // Test predict contribution
   HostDeviceVector<float> out_contribution_hdv;
   auto& out_contribution = out_contribution_hdv.HostVector();
-  cpu_predictor->PredictContribution(dmat.get(), &out_contribution_hdv, model);
+  cpu_predictor->PredictContribution(dmat.get(), &out_contribution_hdv, 0.0f, model);
   ASSERT_EQ(out_contribution.size(), kRows * (kCols + 1));
   for (size_t i = 0; i < out_contribution.size(); ++i) {
     auto const& contri = out_contribution[i];
@@ -74,7 +74,7 @@ TEST(CpuPredictor, Basic) {
     }
   }
   // Test predict contribution (approximate method)
-  cpu_predictor->PredictContribution(dmat.get(), &out_contribution_hdv, model,
+  cpu_predictor->PredictContribution(dmat.get(), &out_contribution_hdv, 0.0f, model,
                                      0, nullptr, true);
   for (size_t i = 0; i < out_contribution.size(); ++i) {
     auto const& contri = out_contribution[i];
@@ -134,7 +134,7 @@ TEST(CpuPredictor, ExternalMemory) {
   // Test predict contribution
   HostDeviceVector<float> out_contribution_hdv;
   auto& out_contribution = out_contribution_hdv.HostVector();
-  cpu_predictor->PredictContribution(dmat.get(), &out_contribution_hdv, model);
+  cpu_predictor->PredictContribution(dmat.get(), &out_contribution_hdv, 0.0f, model);
   ASSERT_EQ(out_contribution.size(), dmat->Info().num_row_ * (dmat->Info().num_col_ + 1));
   for (size_t i = 0; i < out_contribution.size(); ++i) {
     auto const& contri = out_contribution[i];
@@ -150,7 +150,7 @@ TEST(CpuPredictor, ExternalMemory) {
   HostDeviceVector<float> out_contribution_approximate_hdv;
   auto& out_contribution_approximate = out_contribution_approximate_hdv.HostVector();
   cpu_predictor->PredictContribution(
-      dmat.get(), &out_contribution_approximate_hdv, model, 0, nullptr, true);
+      dmat.get(), &out_contribution_approximate_hdv, 0.0f, model, 0, nullptr, true);
   ASSERT_EQ(out_contribution_approximate.size(),
             dmat->Info().num_row_ * (dmat->Info().num_col_ + 1));
   for (size_t i = 0; i < out_contribution.size(); ++i) {

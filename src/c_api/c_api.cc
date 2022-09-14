@@ -732,6 +732,7 @@ XGB_DLL int XGBoosterEvalOneIter(BoosterHandle handle,
 XGB_DLL int XGBoosterPredict(BoosterHandle handle,
                              DMatrixHandle dmat,
                              int option_mask,
+                             bst_float reg_lambda,
                              unsigned ntree_limit,
                              int training,
                              xgboost::bst_ulong *len,
@@ -742,7 +743,8 @@ XGB_DLL int XGBoosterPredict(BoosterHandle handle,
   auto& entry = learner->GetThreadLocal().prediction_entry;
   auto iteration_end = GetIterationFromTreeLimit(ntree_limit, learner);
   learner->Predict(*static_cast<std::shared_ptr<DMatrix> *>(dmat),
-                   (option_mask & 1) != 0, &entry.predictions, 0, iteration_end,
+                   (option_mask & 1) != 0, reg_lambda,
+                   &entry.predictions, 0, iteration_end,
                    static_cast<bool>(training), (option_mask & 2) != 0,
                    (option_mask & 4) != 0, (option_mask & 8) != 0,
                    (option_mask & 16) != 0);
@@ -753,6 +755,7 @@ XGB_DLL int XGBoosterPredict(BoosterHandle handle,
 
 XGB_DLL int XGBoosterPredictFromDMatrix(BoosterHandle handle,
                                         DMatrixHandle dmat,
+                                        bst_float reg_lambda,
                                         char const* c_json_config,
                                         xgboost::bst_ulong const **out_shape,
                                         xgboost::bst_ulong *out_dim,
@@ -791,7 +794,8 @@ XGB_DLL int XGBoosterPredictFromDMatrix(BoosterHandle handle,
   bool interactions = type == PredictionType::kInteraction ||
                       type == PredictionType::kApproxInteraction;
   bool training = RequiredArg<Boolean>(config, "training", __func__);
-  learner->Predict(p_m, type == PredictionType::kMargin, &entry.predictions,
+  learner->Predict(p_m, type == PredictionType::kMargin, reg_lambda,
+                   &entry.predictions,
                    iteration_begin, iteration_end, training,
                    type == PredictionType::kLeaf, contribs, approximate,
                    interactions);

@@ -215,30 +215,30 @@ void PredictBatchByBlockOfRowsKernel(
   });
 }
 
-float FillNodeMeanValues(RegTree const *tree, bst_node_t nidx, std::vector<float> *mean_values) {
+float FillNodeMeanValues(RegTree const *tree, bst_float reg_lambda, bst_node_t nidx, std::vector<float> *mean_values) {
   bst_float result;
   auto &node = (*tree)[nidx];
   auto &node_mean_values = *mean_values;
   if (node.IsLeaf()) {
     result = node.LeafValue();
   } else {
-    result = FillNodeMeanValues(tree, node.LeftChild(), mean_values) *
-             tree->Stat(node.LeftChild()).sum_hess;
-    result += FillNodeMeanValues(tree, node.RightChild(), mean_values) *
-              tree->Stat(node.RightChild()).sum_hess;
-    result /= tree->Stat(nidx).sum_hess;
+    result = FillNodeMeanValues(tree, reg_lambda, node.LeftChild(), mean_values) *
+             (tree->Stat(node.LeftChild()).sum_hess + reg_lambda);
+    result += FillNodeMeanValues(tree, reg_lambda, node.RightChild(), mean_values) *
+              (tree->Stat(node.RightChild()).sum_hess + reg_lambda);
+    result /= tree->Stat(nidx).sum_hess + reg_lambda;
   }
   node_mean_values[nidx] = result;
   return result;
 }
 
-void FillNodeMeanValues(RegTree const* tree, std::vector<float>* mean_values) {
+void FillNodeMeanValues(RegTree const* tree, bst_float reg_lambda, std::vector<float>* mean_values) {
   size_t num_nodes = tree->param.num_nodes;
   if (mean_values->size() == num_nodes) {
     return;
   }
   mean_values->resize(num_nodes);
-  FillNodeMeanValues(tree, 0, mean_values);
+  FillNodeMeanValues(tree, reg_lambda, 0, mean_values);
 }
 
 class CPUPredictor : public Predictor {
@@ -408,6 +408,7 @@ class CPUPredictor : public Predictor {
 
   void PredictContribution(DMatrix *p_fmat,
                            HostDeviceVector<float> *out_contribs,
+                           bst_float reg_lambda,
                            const gbm::GBTreeModel &model, uint32_t ntree_limit,
                            std::vector<bst_float> const *tree_weights,
                            bool approximate, int condition,
@@ -434,7 +435,7 @@ class CPUPredictor : public Predictor {
     // initialize tree node mean values
     std::vector<std::vector<float>> mean_values(ntree_limit);
     common::ParallelFor(ntree_limit, n_threads, [&](bst_omp_uint i) {
-      FillNodeMeanValues(model.trees[i].get(), &(mean_values[i]));
+      FillNodeMeanValues(model.trees[i].get(), reg_lambda, &(mean_values[i]));
     });
     auto base_margin = info.base_margin_.View(GenericParameter::kCpuId);
     // start collecting the contributions
@@ -466,7 +467,7 @@ class CPUPredictor : public Predictor {
                   condition_feature);
             } else {
               model.trees[j]->CalculateContributionsApprox(
-                  feats, tree_mean_values, &this_tree_contribs[0]);
+                  feats, reg_lambda, tree_mean_values, &this_tree_contribs[0]);
             }
             for (size_t ci = 0; ci < ncolumns; ++ci) {
               p_contribs[ci] +=
@@ -512,12 +513,12 @@ class CPUPredictor : public Predictor {
     // Compute the difference in effects when conditioning on each of the features on and off
     // see: Axiomatic characterizations of probabilistic and
     //      cardinal-probabilistic interaction indices
-    PredictContribution(p_fmat, &contribs_diag_hdv, model, ntree_limit,
+    PredictContribution(p_fmat, &contribs_diag_hdv, 0.0f, model, ntree_limit,
                         tree_weights, approximate, 0, 0);
     for (size_t i = 0; i < ncolumns + 1; ++i) {
-      PredictContribution(p_fmat, &contribs_off_hdv, model, ntree_limit,
+      PredictContribution(p_fmat, &contribs_off_hdv, 0.0f, model, ntree_limit,
                           tree_weights, approximate, -1, i);
-      PredictContribution(p_fmat, &contribs_on_hdv, model, ntree_limit,
+      PredictContribution(p_fmat, &contribs_on_hdv, 0.0f, model, ntree_limit,
                           tree_weights, approximate, 1, i);
 
       for (size_t j = 0; j < info.num_row_; ++j) {

@@ -156,6 +156,7 @@ class GradientBooster : public Model, public Configurable {
    *         of length (nfeats + 1) * num_output_group * nsample, arranged in that order
    * \param dmat feature matrix
    * \param out_contribs output vector to hold the contributions
+   * \param reg_lambda L2 regularization strength.
    * \param layer_begin Beginning of boosted tree layer used for prediction.
    * \param layer_end   End of booster layer. 0 means do not limit trees.
    * \param approximate use a faster (inconsistent) approximation of SHAP values
@@ -164,6 +165,7 @@ class GradientBooster : public Model, public Configurable {
    */
   virtual void PredictContribution(DMatrix* dmat,
                                    HostDeviceVector<bst_float>* out_contribs,
+                                   bst_float reg_lambda,
                                    unsigned layer_begin, unsigned layer_end,
                                    bool approximate = false, int condition = 0,
                                    unsigned condition_feature = 0) = 0;

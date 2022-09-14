@@ -175,6 +175,7 @@ class GBLinear : public GradientBooster {
 
   void PredictContribution(DMatrix* p_fmat,
                            HostDeviceVector<bst_float>* out_contribs,
+                           bst_float reg_lambda,
                            unsigned layer_begin, unsigned layer_end, bool, int, unsigned) override {
     model_.LazyInitModel();
     LinearCheckLayer(layer_begin);

@@ -375,6 +375,7 @@ class GBTree : public GradientBooster {
 
   void PredictContribution(DMatrix* p_fmat,
                            HostDeviceVector<bst_float>* out_contribs,
+                           bst_float reg_lambda,
                            uint32_t layer_begin, uint32_t layer_end, bool approximate,
                            int, unsigned) override {
     CHECK(configured_);
@@ -384,7 +385,7 @@ class GBTree : public GradientBooster {
         << "Predict contribution supports only iteration end: (0, "
            "n_iteration), using model slicing instead.";
     this->GetPredictor()->PredictContribution(
-        p_fmat, out_contribs, model_, tree_end, nullptr, approximate);
+        p_fmat, out_contribs, reg_lambda, model_, tree_end, nullptr, approximate);
   }
 
   void PredictInteractionContributions(

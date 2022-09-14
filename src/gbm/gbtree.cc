@@ -876,12 +876,13 @@ class Dart : public GBTree {
 
   void PredictContribution(DMatrix* p_fmat,
                            HostDeviceVector<bst_float>* out_contribs,
+                           bst_float reg_lambda,
                            unsigned layer_begin, unsigned layer_end, bool approximate, int,
                            unsigned) override {
     CHECK(configured_);
     uint32_t tree_begin, tree_end;
     std::tie(tree_begin, tree_end) = detail::LayerToTree(model_, layer_begin, layer_end);
-    cpu_predictor_->PredictContribution(p_fmat, out_contribs, model_,
+    cpu_predictor_->PredictContribution(p_fmat, out_contribs, reg_lambda, model_,
                                         tree_end, &weight_drop_, approximate);
   }
 

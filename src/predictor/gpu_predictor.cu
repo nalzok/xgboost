@@ -809,6 +809,7 @@ class GPUPredictor : public xgboost::Predictor {
 
   void PredictContribution(DMatrix* p_fmat,
                            HostDeviceVector<bst_float>* out_contribs,
+                           bst_float reg_lambda,
                            const gbm::GBTreeModel& model, unsigned tree_end,
                            std::vector<bst_float> const* tree_weights,
                            bool approximate, int,

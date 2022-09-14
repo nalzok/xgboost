@@ -116,6 +116,7 @@ class Learner : public Model, public Configurable, public dmlc::Serializable {
    * \brief get prediction given the model.
    * \param data input data
    * \param output_margin whether to only predict margin value instead of transformed prediction
+   * \param reg_lambda L2 regularization strength.
    * \param out_preds output vector that stores the prediction
    * \param layer_begin Beginning of boosted tree layer used for prediction.
    * \param layer_end   End of booster layer. 0 means do not limit trees.
@@ -127,6 +128,7 @@ class Learner : public Model, public Configurable, public dmlc::Serializable {
    */
   virtual void Predict(std::shared_ptr<DMatrix> data,
                        bool output_margin,
+                       bst_float reg_lambda,
                        HostDeviceVector<bst_float> *out_preds,
                        unsigned layer_begin,
                        unsigned layer_end,

@@ -865,6 +865,7 @@ XGB_DLL int XGBoosterEvalOneIter(BoosterHandle handle,
  *          1:output margin instead of transformed value
  *          2:output leaf index of trees instead of leaf value, note leaf index is unique per tree
  *          4:output feature contributions to individual predictions
+ * \param reg_lambda L2 regularization strength
  * \param ntree_limit limit number of trees used for prediction, this is only valid for boosted trees
  *    when the parameter is set to 0, we will use all the trees
  * \param training Whether the prediction function is used as part of a training loop.
@@ -882,6 +883,7 @@ XGB_DLL int XGBoosterEvalOneIter(BoosterHandle handle,
 XGB_DLL int XGBoosterPredict(BoosterHandle handle,
                              DMatrixHandle dmat,
                              int option_mask,
+                             float reg_lambda,
                              unsigned ntree_limit,
                              int training,
                              bst_ulong *out_len,
@@ -891,6 +893,7 @@ XGB_DLL int XGBoosterPredict(BoosterHandle handle,
  *
  * \param handle Booster handle
  * \param dmat   DMatrix handle
+ * \param reg_lambda L2 regularization strength
  * \param c_json_config String encoded predict configuration in JSON format, with
  *                      following available fields in the JSON object:
  *
@@ -944,6 +947,7 @@ XGB_DLL int XGBoosterPredict(BoosterHandle handle,
  */
 XGB_DLL int XGBoosterPredictFromDMatrix(BoosterHandle handle,
                                         DMatrixHandle dmat,
+                                        float reg_lambda,
                                         char const* c_json_config,
                                         bst_ulong const **out_shape,
                                         bst_ulong *out_dim,

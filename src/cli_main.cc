@@ -346,7 +346,7 @@ class CLI {
       LOG(WARNING) << "`ntree_limit` is deprecated, use `iteration_begin` and "
                       "`iteration_end` instead.";
     }
-    learner_->Predict(dtest, param_.pred_margin, &preds, param_.iteration_begin,
+    learner_->Predict(dtest, param_.pred_margin, 0.0f, &preds, param_.iteration_begin,
                       param_.iteration_end);
     LOG(CONSOLE) << "Writing prediction to " << param_.name_pred;
 

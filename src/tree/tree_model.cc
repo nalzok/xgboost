@@ -1214,6 +1214,7 @@ void RegTree::SaveModel(Json* p_out) const {
 }
 
 void RegTree::CalculateContributionsApprox(const RegTree::FVec &feat,
+                                           bst_float reg_lambda,
                                            std::vector<float>* mean_values,
                                            bst_float *out_contribs) const {
   CHECK_GT(mean_values->size(), 0U);
